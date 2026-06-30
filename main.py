@@ -1,6 +1,6 @@
 import telebot
 from playwright.sync_api import sync_playwright
-import playwright_stealth  # <--- Poora module import kiya taaki koi galti na ho
+from playwright_stealth import stealth  # <--- Sahi function import kiya
 import time
 import os
 
@@ -68,8 +68,8 @@ def get_password(message):
             
             page = context.new_page()
             
-            # 🛠️ FIXED: Sahi function call jisse "module object is not callable" nahi aayega
-            playwright_stealth.stealth_sync(page)
+            # 🛠️ FIXED: Playwright sync mode mein stealth lagane ka sahi tareeka
+            stealth(page)
             
             page.goto("https://mega.nz/register", wait_until="networkidle")
             time.sleep(5)
@@ -114,7 +114,7 @@ def verify_link(message):
             page = context.new_page()
             
             # 🛠️ FIXED HERE ALSO
-            playwright_stealth.stealth_sync(page)
+            stealth(page)
             
             page.goto(link, wait_until="networkidle")
             time.sleep(5)
