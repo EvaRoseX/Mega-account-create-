@@ -1,8 +1,11 @@
 import telebot
 from playwright.sync_api import sync_playwright
-from playwright_stealth import stealth  # <--- Sahi function import kiya
+from playwright_stealth import stealth
 import time
 import os
+import threading
+import http.server
+import socketserver
 
 # Telegram Bot Token
 BOT_TOKEN = os.getenv("BOT_TOKEN", "8870024373:AAEsUSqKTFigXORxBLTV5J9_PxxUDS_J6Ko")
@@ -67,8 +70,6 @@ def get_password(message):
             )
             
             page = context.new_page()
-            
-            # 🛠️ FIXED: Playwright sync mode mein stealth lagane ka sahi tareeka
             stealth(page)
             
             page.goto("https://mega.nz/register", wait_until="networkidle")
@@ -112,8 +113,6 @@ def verify_link(message):
             browser = p.chromium.launch(headless=True, args=["--no-sandbox", "--disable-setuid-sandbox"])
             context = browser.new_context(user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
             page = context.new_page()
-            
-            # 🛠️ FIXED HERE ALSO
             stealth(page)
             
             page.goto(link, wait_until="networkidle")
@@ -133,5 +132,19 @@ def verify_link(message):
         bot.send_message(chat_id, f"❌ Verification fail: {str(e)}")
 
 
-print("Stealth Bot ready for Render...")
+# 🌐 DUMMY SERVER FUNCTION (Render Port Bind Error Fix)
+def run_dummy_server():
+    # Render automatic ek PORT assign karta hai, agar na mile toh default 8000 lega
+    PORT = int(os.getenv("PORT", 8000))
+    Handler = http.server.SimpleHTTPRequestHandler
+    # Allow reuse address taaki crash hone par port block na rahe
+    socketserver.TCPServer.allow_reuse_address = True
+    with socketserver.TCPServer(("", PORT), Handler) as httpd:
+        print(f"Dummy server active on port {PORT}")
+        httpd.serve_forever()
+
+# Server ko alag thread me chalayenge taaki bot polling block na ho
+threading.Thread(target=run_dummy_server, daemon=True).start()
+
+print("Stealth Bot ready for Render Free Web Service...")
 bot.infinity_polling(skip_pending=True)
