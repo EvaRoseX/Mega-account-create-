@@ -1,6 +1,6 @@
 import telebot
 from playwright.sync_api import sync_playwright
-from playwright_stealth import stealth
+import playwright_stealth  # <--- Poora module import kiya taaki koi galti na ho
 import time
 import os
 
@@ -8,12 +8,12 @@ import os
 BOT_TOKEN = os.getenv("BOT_TOKEN", "8870024373:AAEsUSqKTFigXORxBLTV5J9_PxxUDS_J6Ko")
 bot = telebot.TeleBot(BOT_TOKEN)
 
-# ✅ Aapki Real Telegram ID set ho gayi hai
+# ✅ Aapki Real Telegram ID
 OWNER_ID = 8391386178
 
 user_data = {}
 
-# 📢 STARTUP NOTIFICATION (Render par run hote hi aapko alert aayega)
+# 📢 STARTUP NOTIFICATION
 try:
     bot.send_message(OWNER_ID, "🚀 **Bot successfully restart ho gaya he aur active he!**", parse_mode="Markdown")
 except Exception as e:
@@ -67,7 +67,9 @@ def get_password(message):
             )
             
             page = context.new_page()
-            stealth(page)
+            
+            # 🛠️ FIXED: Sahi function call jisse "module object is not callable" nahi aayega
+            playwright_stealth.stealth_sync(page)
             
             page.goto("https://mega.nz/register", wait_until="networkidle")
             time.sleep(5)
@@ -92,7 +94,7 @@ def get_password(message):
         bot.register_next_step_handler(message, verify_link)
         
     except Exception as e:
-        bot.send_message(chat_id, f"❌ Stealth Mode bhi block ho gaya: {str(e)}\n\nMega ne Server IP pe pakad liya hai.")
+        bot.send_message(chat_id, f"❌ Engine Error: {str(e)}")
 
 
 def verify_link(message):
@@ -110,7 +112,9 @@ def verify_link(message):
             browser = p.chromium.launch(headless=True, args=["--no-sandbox", "--disable-setuid-sandbox"])
             context = browser.new_context(user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
             page = context.new_page()
-            stealth(page)
+            
+            # 🛠️ FIXED HERE ALSO
+            playwright_stealth.stealth_sync(page)
             
             page.goto(link, wait_until="networkidle")
             time.sleep(5)
